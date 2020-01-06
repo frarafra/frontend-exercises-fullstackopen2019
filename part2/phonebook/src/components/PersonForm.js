@@ -1,4 +1,5 @@
 import React from 'react'
+import personService from '../services/persons'
 
 const PersonForm = ({ values, setters, handlers }) => {
   const [newName, newNumber, persons] = values
@@ -7,15 +8,28 @@ const PersonForm = ({ values, setters, handlers }) => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    const person = {
+    const newPerson = {
       name: newName,
       number: newNumber,
+      id: persons.length + 1,
     }
 
-    if (persons.find(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    const id = persons.findIndex(person => person.name === newName)
+    if (id !== -1) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        personService
+        .update(persons[id].id, newPerson)
+        .then((updatedPerson) => {
+          persons[id] = updatedPerson
+          setPersons([...persons])
+        })
+      }
     } else {
-      setPersons(persons.concat(person))
+      personService
+      .create(newPerson)
+      .then((addedPerson) => {
+        setPersons(persons.concat(addedPerson))
+      })
     }
     setNewName('')
     setNewNumber('')

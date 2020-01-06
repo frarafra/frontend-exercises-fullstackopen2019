@@ -1,15 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
+import personService from './services/persons'
 
 const App = () => {
-  const [ persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-1234567' }
-  ]) 
+  const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilter, setNewFilter ] = useState('')
+
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initPersons => {
+        setPersons(initPersons)
+      })
+  }, [])
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -34,7 +41,7 @@ const App = () => {
         handlers={[handleNameChange, handleNumberChange]}
       />
       <h3>Numbers</h3>
-      <Persons persons={persons} filter={newFilter} />
+      <Persons persons={persons} filter={newFilter} setter={setPersons}/>
     </div>
   )
 }

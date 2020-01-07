@@ -3,8 +3,15 @@ import personService from '../services/persons'
 
 const PersonForm = ({ values, setters, handlers }) => {
   const [newName, newNumber, persons] = values
-  const [setNewName, setNewNumber, setPersons] = setters
+  const [setNewName, setNewNumber, setPersons, setNotification, setError] = setters
   const [handleNameChange, handleNumberChange] = handlers
+
+  const showNotification = (message) => {
+    setNotification(message)
+    setTimeout(() => {
+      setNotification(null)
+    }, 3000)
+  }
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -22,6 +29,13 @@ const PersonForm = ({ values, setters, handlers }) => {
         .then((updatedPerson) => {
           persons[id] = updatedPerson
           setPersons([...persons])
+          showNotification(`Updated ${newName}'s number`)
+         })
+        .catch(() => {
+          setError(`Information of ${newName} has already been removed from server`)
+          setTimeout(() => {
+            setError(null)
+          }, 3000)
         })
       }
     } else {
@@ -29,6 +43,7 @@ const PersonForm = ({ values, setters, handlers }) => {
       .create(newPerson)
       .then((addedPerson) => {
         setPersons(persons.concat(addedPerson))
+        showNotification(`Added ${newName}`)
       })
     }
     setNewName('')
